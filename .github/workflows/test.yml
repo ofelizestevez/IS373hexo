@@ -1,0 +1,33 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - main  # Default branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive  # Ensure submodules are checked out
+      - name: Install Website Dependencies
+        run: npm install
+      - name: Install Playwright Dependencies
+        run: |
+          cd playwright
+          npm install  # Install dependencies in the submodule
+      - name: Download Browsers
+        run: |
+          cd playwright
+          npx playwright install --with-deps # Download the required browsers
+      - name: Start Hexo Server
+        run: |
+          npm run server &  # Start the Hexo server in the background
+          sleep 10  # Wait for the server to start
+      - name: Run Playwright Tests
+        run: |
+          cd playwright
+          npm run test  # Run the Playwright tests

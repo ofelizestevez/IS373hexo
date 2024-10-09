@@ -1,0 +1,6 @@
+[submodule "source"]
+	path = source
+	url = https://github.com/PD438/IS373hexo.git
+[submodule "playwright"]
+	path = playwright
+	url = https://github.com/PD438/is373_devops_playwright.git
