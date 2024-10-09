@@ -1,0 +1,103 @@
+name: Test and Deploy Hexo Site
+
+on:
+  push:
+    branches:
+      
+main  # Trigger on push to the main branch
+pull_request:
+  branches:
+main  # Trigger on pull request to the main branch
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the Hexo website repository
+      
+name: Checkout Hexo Repository
+      uses: actions/checkout@v3
+
+      # Install Node.js
+      
+name: Set Up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '21'  # Specify your Node.js version
+
+      # Install Hexo and its dependencies
+      
+name: Install Hexo and Dependencies
+      run: |
+        npm install -g hexo-cli
+        npm install
+
+      # Generate the static website
+      
+name: Generate Hexo Site
+      run: hexo generate
+
+      # Clone the Playwright test repository
+      
+name: Clone Playwright Test Repository
+      run: |
+        git clone https://github.com/jar285/is373_devops.git
+        cd is373_devops/tests
+        npm install
+
+      # Install required browsers for Playwright
+      
+name: Install Playwright Browsers
+      run: npx playwright install  # This will download and install the required browsers
+
+      # Run Playwright tests
+      
+name: Execute Playwright Tests
+      run: |
+        cd is373_devops/tests
+        npx playwright test --config=../playwright.config.js  # Adjust to point to your config file
+
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test  # Ensure deployment only happens if the tests pass
+    if: github.event_name == 'push'
+
+    steps:
+      # Checkout the Hexo repository again
+      
+name: Checkout Hexo Repository
+      uses: actions/checkout@v3
+
+      # Set Up Node.js environment for deployment
+      
+name: Set Up Node.js for Deployment
+      uses: actions/setup-node@v3
+      with:
+        node-version: '21'  # Ensure this matches your environment
+
+      # Install Hexo and dependencies for deployment
+      
+name: Install Hexo and Dependencies for Deployment
+      run: |
+        npm install -g hexo-cli
+        npm install
+
+      # Re-generate the static website for deployment
+      
+name: Regenerate Hexo Site
+      run: hexo generate
+
+      # Add .nojekyll file to disable Jekyll processing
+      
+name: Disable Jekyll
+      run: touch ./public/.nojekyll
+
+      # Deploy to GitHub Pages
+      
+name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./public  # Ensure this matches your build output
