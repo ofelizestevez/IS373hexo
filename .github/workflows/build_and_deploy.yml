@@ -13,12 +13,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive  # Ensure submodules are checked out
-
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-
       - name: Cache NPM dependencies
         uses: actions/cache@v4
         with:
@@ -26,15 +24,10 @@ jobs:
           key: ${{ runner.OS }}-npm-cache
           restore-keys: |
             ${{ runner.OS }}-npm-cache
-
       - name: Install Dependencies
         run: npm install
-
-      - name: Generate Hexo site
-        run: |
-          npx hexo clean
-          npx hexo generate
-
+      - name: Build
+        run: npm run build
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
